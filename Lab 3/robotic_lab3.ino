@@ -114,23 +114,23 @@ void manual() {
   if (GamePad.isSquarePressed() && (now - lastSquareTime >= DEBOUNCE_MS)) {
     lastSquareTime = now;
     angle += 10;
-    angle = constrain(angle, 40, 130);
+    angle = constrain(angle, 80, 120);
     myServo.write(angle);
     Serial.print("Angle: "); Serial.println(angle); // debug
   }
   if (GamePad.isCirclePressed() && (now - lastCircleTime >= DEBOUNCE_MS)) {
     lastCircleTime = now;
     angle -= 10;
-    angle = constrain(angle, 40, 130);
+    angle = constrain(angle, 80, 120);
     myServo.write(angle);
     Serial.print("Angle: "); Serial.println(angle); // debug
   }
   if (GamePad.isCrossPressed()) {
-    angle = 40;
+    angle = 80;
     myServo.write(angle);
   }
   if (GamePad.isTrianglePressed()) {
-    angle = 130;
+    angle = 120;
     myServo.write(angle);
   }
 }
