@@ -69,11 +69,11 @@ void loop() {
     switch (irCode) {
 
       // Motion
-      case 0xFF18E7: forward();    break;
-      case 0xFF4AB5: backward();   break;
-      case 0xFF10EF: left();       break;
-      case 0xFF5AA5: right();      break;
-      case 0xFF38C7: stopMotors(); break;
+      case 0xFF18E7: forward(); Serial.println("Going Forward");    break;
+      case 0xFF4AB5: backward(); Serial.println("Going Backward");   break;
+      case 0xFF10EF: left(); Serial.println("Turning left");       break;
+      case 0xFF5AA5: right(); Serial.println("Turning right");      break;
+      case 0xFF38C7: stopMotors(); Serial.println("Stopping"); break;
 
       // Speed adjust
       case 0xFF6897:  // '*' decrease
