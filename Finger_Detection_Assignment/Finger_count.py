@@ -104,7 +104,7 @@ def main():
                     draw_hand(frame, hand_landmarks)
 
                     num_fingers = count_fingers(hand_landmarks, handedness)
-                    print(f"Hand: {handedness}, Fingers up: {num_fingers}")
+                    print(f"Hand: {display_name}, Fingers up: {num_fingers}")
 
                     cv2.putText(
                         frame,
