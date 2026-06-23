@@ -18,7 +18,7 @@ while True:
     if not ret:
         print("Frame grab failed.")
         break
-
+    frame = cv2.flip(frame, 1)
     # --- Run YOLOv8 inference on the frame ---
     results = model(frame, stream=True)
 
