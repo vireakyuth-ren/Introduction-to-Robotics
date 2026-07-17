@@ -116,7 +116,7 @@ fps_counter = 0
 fps_timer = time.time()
 current_fps = 0
 
-app = Flask(name)
+app = Flask(__name__)
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))  # MJPG usually unlocks much
                                                                 # higher FPS than default YUYV
@@ -143,12 +143,6 @@ def generate_frames():
     global fps_counter, fps_timer, current_fps
 
     while True:
-        # NOTE: previously did 2x cap.grab() + cap.read() (3 real frame waits
-        # per loop, only 1 processed) to flush stale buffered frames. With
-        # CAP_PROP_BUFFERSIZE=1 already set, a single read() should be enough
-        # on most drivers. If you notice the feed reacting to obstacles late
-        # (visibly stale frames), your driver may be ignoring BUFFERSIZE - add
-        # back a single cap.grab() before this line as a middle ground.
         ret, frame = cap.read()
         if not ret:
             break
@@ -203,18 +197,11 @@ def generate_frames():
                 command = "Stop"
                 decision = "SCANNING FOR BOX (STOPPED)"
 
-                # if the obstacle itself is gone (distance no longer
-                # close/unknown), give up scanning and return to normal
-                # line following instead of staying stopped forever.
                 if distance is None or distance > OBSTACLE_TRIGGER_DISTANCE:
                     obstacle_scanning = False
                     decision = "OBSTACLE CLEARED"
                   # =========================
         # Priority 2: box avoidance (turn phase)
-        # Only allowed to (re)trigger while NOT already committed to the
-        # "forward"/"turnback"/"recover" sub-phases of an avoidance maneuver,
-        # so a flickering YOLO detection can't hijack control mid-maneuver
-        # and add untracked extra rotation.
         # =========================
         elif box_command is not None and avoid_phase not in ("forward", "turnback", "recover"):
             if avoid_phase != "turn":
@@ -232,11 +219,10 @@ def generate_frames():
         elif avoiding:
             if avoid_phase == "turn":
                 if time.time() - avoid_turn_start < MIN_TURN_TIME:
-                    # box left the view early - keep turning until the minimum time is met
                     command = AVOID_COMMAND_MAP[avoid_direction]
                     decision = f"AVOIDING ({command})"
                 else:
-                    avoid_turn_duration = time.time() - avoid_turn_start  # remember how long we turned
+                    avoid_turn_duration = time.time() - avoid_turn_start
                     avoid_phase = "forward"
                     avoid_phase_start = time.time()
                     command = "Forward"
@@ -258,28 +244,20 @@ def generate_frames():
             elif avoid_phase == "turnback":
                 turnback_direction = "Left" if avoid_direction == "Right" else "Right"
                 if time.time() - avoid_turnback_start < avoid_turn_duration:
-                    # pure timer, mirrors the outward turn using the SAME
-                    # avoid command type so the rotation angle actually matches
                     command = AVOID_COMMAND_MAP[turnback_direction]
                     decision = f"AVOID TURNBACK ({command})"
                 else:
-                    # matched the outward turn duration - heading should be
-                    # parallel again, but DON'T hand off to line-following
-                    # yet. Go into a forced-forward recovery phase first so
-                    # the robot actually drives (for real time, not one
-                    # frame) instead of instantly hitting "line not seen"
-                    # and jumping into a search turn.
                     avoid_phase = "recover"
                     avoid_recover_start = time.time()
                     command = "Forward"
                     decision = "AVOID RECOVER (FORWARD)"
                     last_command = ""
-                  else:  # avoid_phase == "recover"
+
+            elif avoid_phase == "recover":
                 if line_visible:
-                    # found the line early - done, hand off to line following
                     avoiding = False
                     avoid_phase = None
-                    last_decision = "Forward"   # reset stale pre-avoidance state
+                    last_decision = "Forward"
                     command = "Forward"
                     decision = "AVOID RECOVER DONE - FORWARD"
                     last_command = ""
@@ -287,11 +265,9 @@ def generate_frames():
                     command = "Forward"
                     decision = "AVOID RECOVER (FORWARD)"
                 else:
-                    # recovery window elapsed without seeing the line yet -
-                    # hand off to Priority 4, which will search from here
                     avoiding = False
                     avoid_phase = None
-                    last_decision = "Forward"   # reset stale pre-avoidance state
+                    last_decision = "Forward"
                     command = "Forward"
                     decision = "AVOID RECOVER TIMEOUT - FORWARD"
                     last_command = ""
@@ -311,7 +287,6 @@ def generate_frames():
                     decision, command = "FORWARD", "Forward"
                     last_decision = "Forward"
             else:
-                # lost the line - search opposite of last known direction
                 if last_decision == "Right":
                     decision, command = "SEARCH LEFT", "SearchLeft"
                 elif last_decision == "Left":
@@ -364,5 +339,5 @@ def video():
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
-if name == "main":
+if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
