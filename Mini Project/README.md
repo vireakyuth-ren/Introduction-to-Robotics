@@ -17,3 +17,5 @@ On the hardware side, the project needs an ESP32 dev board wired to four DC moto
 **Challenges**
 
 The mini project wasn't really hard but it wasn't smooth either. We had a small problem with the robot tripping over the line or turning to fast which causes it to lose the line even on a straight path. The fix was simple, we implemented it to turn the opposite side if it loses the line after turning one side, (For example: Last command = turn right -> loses line -> turn left -> line is back in sight). We also spent some time fine-tuning the speed of the robot to get the smoothest movement which we achieved after a few days.
+
+[Demonstration video](https://youtube.com/shorts/OVNY7z-ihEc?si=3smOm_eadmc_kcBa)
