@@ -1,8 +1,8 @@
-Final Project – Autonomous Line-Following Robot with Obstacle Avoidance
+Mini Project – Autonomous Line-Following Robot
 
 **Overview**
 
-This is the final project for the Introduction to Robotics course: a four-wheeled differential-drive robot that autonomously follows a black line marked on the floor from the starting point to the ending point with multiple turns in the track to test the robot's capabilities.
+This is the mini project for the Introduction to Robotics course: a four-wheeled differential-drive robot that autonomously follows a black line marked on the floor from the starting point to the ending point with multiple turns in the track to test the robot's capabilities.
 
 **How It Works**
 
